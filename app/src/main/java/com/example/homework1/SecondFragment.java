@@ -11,11 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.homework1.R;
+
 
 public class SecondFragment extends Fragment {
     private static final String CURRENT = "CURRENT";
-    private int num, color;
+    private int num;
 
     public SecondFragment() {}
     SecondFragment(int n) {
@@ -34,6 +34,7 @@ public class SecondFragment extends Fragment {
         View view = inflater.inflate(R.layout.second_fragment, container, false);
         TextView counter = view.findViewById(R.id.num);
         counter.setText(String.valueOf(num));
+        int color;
         if(num%2 == 0)
             color = Color.RED;
         else

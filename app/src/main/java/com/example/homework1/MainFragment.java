@@ -57,7 +57,7 @@ public class MainFragment extends Fragment {
 
     class MyDataAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-        private List<Integer> mData;
+        private final List<Integer> mData;
 
         MyDataAdapter(int n) {
             mData = new ArrayList<>();
