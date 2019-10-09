@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState == null) {
             transaction.add(R.id.mainFrag, MainFragment.newInstance(DEF_SIZE));
-            transaction.addToBackStack(null);
             transaction.commit();
         }
     }
