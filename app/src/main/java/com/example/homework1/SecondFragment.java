@@ -1,6 +1,5 @@
 package com.example.homework1;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,30 +14,37 @@ import androidx.fragment.app.Fragment;
 
 public class SecondFragment extends Fragment {
     private static final String CURRENT = "CURRENT";
-    private int num;
+    private static final String COLOR = "COLOR";
+    private int num, color;
 
-    public SecondFragment() {}
-    SecondFragment(int n) {
-        num = n;
+    static SecondFragment newInstance(int n, int color) {
+        SecondFragment frag = new SecondFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(CURRENT, n);
+        bundle.putInt(COLOR, color);
+        frag.setArguments(bundle);
+        return frag;
     }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState != null) {
-            num = savedInstanceState.getInt(CURRENT);
-        }
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.second_fragment, container, false);
+        Bundle arguments = getArguments();
+        if(savedInstanceState != null) {
+            num = savedInstanceState.getInt(CURRENT);
+            color = savedInstanceState.getInt(COLOR);
+        }
+        else if(arguments != null) {
+            num = arguments.getInt(CURRENT);
+            color = arguments.getInt(COLOR);
+        }
         TextView counter = view.findViewById(R.id.num);
         counter.setText(String.valueOf(num));
-        int color;
-        if(num%2 == 0)
-            color = Color.RED;
-        else
-            color = Color.BLUE;
         counter.setTextColor(color);
         return view;
     }
@@ -47,5 +53,6 @@ public class SecondFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(CURRENT, num);
+        outState.putInt(COLOR, color);
     }
 }

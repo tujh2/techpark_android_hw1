@@ -20,23 +20,28 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainFragment extends Fragment {
-    private static final String STATE_SIZE = "maxSize";
-    private static final int DEFAULT_SIZE = 100;
+    private static final String STATE_ARRAY = "ARRAY";
     private MyDataAdapter mAdapter;
+
+    static MainFragment newInstance(int defSize) {
+
+        Bundle args = new Bundle();
+        MainFragment fragment = new MainFragment();
+        fragment.setArguments(args);
+        args.putInt(STATE_ARRAY, defSize);
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState != null) {
-            mAdapter = new MyDataAdapter(savedInstanceState.getInt(STATE_SIZE));
-        }
-        else
-            mAdapter = new MyDataAdapter(DEFAULT_SIZE);
-
     }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        if(mAdapter == null)
+            mAdapter = new MyDataAdapter();
+        Bundle args = getArguments();
         View view = inflater.inflate(R.layout.main_fragment, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.list);
         int columns = getResources().getBoolean(R.bool.is_horizontal) ?
@@ -45,24 +50,29 @@ public class MainFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
         Button addButton = view.findViewById(R.id.add_butt);
         addButton.setOnClickListener(v -> mAdapter.addElement());
+        if(savedInstanceState != null)
+            mAdapter.setData(savedInstanceState.getInt(STATE_ARRAY));
+        else if(args != null)
+            mAdapter.setData(args.getInt(STATE_ARRAY));
         return view;
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull  Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SIZE, mAdapter.getItemCount());
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
 
+   public void onSaveInstanceState(@NonNull  Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_ARRAY, mAdapter.getItemCount());
+   }
 
     class MyDataAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
         private final List<Integer> mData;
 
-        MyDataAdapter(int n) {
+        MyDataAdapter() {
             mData = new ArrayList<>();
-            for (int i = 1; i <= n; i++)
-                mData.add(i);
         }
 
         @NonNull
@@ -76,17 +86,20 @@ public class MainFragment extends Fragment {
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
             int data = mData.get(position), color;
             holder.textView.setText(String.valueOf(data));
-            if(position%2 == 0)
-                color = Color.BLUE;
-            else
-                color = Color.RED;
+            color = (position%2 == 0) ?
+                    Color.BLUE : Color.RED;
             holder.textView.setTextColor(color);
-            //Log.d("BindHolder", "pos =  " + position);
         }
 
         @Override
         public int getItemCount() {
             return mData.size();
+        }
+
+        void setData(int size) {
+            for(int i = getItemCount() + 1; i <= size; i++)
+                mData.add(i);
+            notifyDataSetChanged();
         }
         void addElement() {
             int pos = getItemCount() + 1;
@@ -106,8 +119,8 @@ public class MainFragment extends Fragment {
                 FragmentTransaction transaction = Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction();
                 Fragment top = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFrag);
                 if(top != null) {
-                    transaction.remove(top);
-                    transaction.add(R.id.secFrag, new SecondFragment(pos));
+                    transaction.hide(top);
+                    transaction.add(R.id.secFrag, SecondFragment.newInstance(pos, textView.getCurrentTextColor()));
                 }
                 transaction.addToBackStack(null);
                 transaction.commit();
