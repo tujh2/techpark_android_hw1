@@ -11,17 +11,17 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 
-
 public class SecondFragment extends Fragment {
     private static final String CURRENT = "CURRENT";
     private static final String COLOR = "COLOR";
     private int num, color;
+    private TextView counter = null;
 
-    static SecondFragment newInstance(int n, int color) {
+    static SecondFragment newInstance(int n, int col) {
         SecondFragment frag = new SecondFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(CURRENT, n);
-        bundle.putInt(COLOR, color);
+        bundle.putInt(COLOR, col);
         frag.setArguments(bundle);
         return frag;
     }
@@ -39,14 +39,20 @@ public class SecondFragment extends Fragment {
             num = savedInstanceState.getInt(CURRENT);
             color = savedInstanceState.getInt(COLOR);
         }
-        else if(arguments != null) {
+        if(arguments != null) {
             num = arguments.getInt(CURRENT);
             color = arguments.getInt(COLOR);
         }
-        TextView counter = view.findViewById(R.id.num);
+        counter = view.findViewById(R.id.num);
         counter.setText(String.valueOf(num));
         counter.setTextColor(color);
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        counter = null;
     }
 
     @Override

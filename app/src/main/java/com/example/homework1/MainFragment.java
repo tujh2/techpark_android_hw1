@@ -11,60 +11,70 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class MainFragment extends Fragment {
     private static final String STATE_ARRAY = "ARRAY";
+    private final static int DEFAULT_SIZE = 100;
+    private int savSize;
     private MyDataAdapter mAdapter;
+    private Button addButton;
+    private RecyclerView recyclerView;
+    private FragmentNavigator navigator;
 
-    static MainFragment newInstance(int defSize) {
-
+    static MainFragment newInstance() {
         Bundle args = new Bundle();
         MainFragment fragment = new MainFragment();
         fragment.setArguments(args);
-        args.putInt(STATE_ARRAY, defSize);
+        args.putInt(STATE_ARRAY, DEFAULT_SIZE);
         return fragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        if(savedInstanceState != null) {
+            savSize = savedInstanceState.getInt(STATE_ARRAY);
+        }
+        else if(args != null)
+            savSize = args.getInt(STATE_ARRAY);
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        navigator = MainActivity.INSTANCE.getNavigator();
         if(mAdapter == null)
             mAdapter = new MyDataAdapter();
-        Bundle args = getArguments();
         View view = inflater.inflate(R.layout.main_fragment, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.list);
+        recyclerView = view.findViewById(R.id.list);
         int columns = getResources().getBoolean(R.bool.is_horizontal) ?
                 4 : 3;
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), columns));
         recyclerView.setAdapter(mAdapter);
-        Button addButton = view.findViewById(R.id.add_butt);
+        addButton = view.findViewById(R.id.add_butt);
         addButton.setOnClickListener(v -> mAdapter.addElement());
-        if(savedInstanceState != null)
-            mAdapter.setData(savedInstanceState.getInt(STATE_ARRAY));
-        else if(args != null)
-            mAdapter.setData(args.getInt(STATE_ARRAY));
+        mAdapter.setData(savSize);
         return view;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onDestroyView() {
+        super.onDestroyView();
+        addButton = null;
+        recyclerView = null;
+        mAdapter = null;
+        navigator = null;
     }
 
    public void onSaveInstanceState(@NonNull  Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(STATE_ARRAY, mAdapter.getItemCount());
+        outState.putInt(STATE_ARRAY, savSize);
    }
 
     class MyDataAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -99,11 +109,13 @@ public class MainFragment extends Fragment {
         void setData(int size) {
             for(int i = getItemCount() + 1; i <= size; i++)
                 mData.add(i);
+            savSize = size;
             notifyDataSetChanged();
         }
         void addElement() {
             int pos = getItemCount() + 1;
             mData.add(pos);
+            savSize++;
             notifyDataSetChanged();
         }
     }
@@ -116,14 +128,8 @@ public class MainFragment extends Fragment {
             textView = itemView.findViewById(R.id.number);
             textView.setOnClickListener( v -> {
                 int pos = getAdapterPosition() + 1;
-                FragmentTransaction transaction = Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction();
-                Fragment top = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFrag);
-                if(top != null) {
-                    transaction.hide(top);
-                    transaction.add(R.id.secFrag, SecondFragment.newInstance(pos, textView.getCurrentTextColor()));
-                }
-                transaction.addToBackStack(null);
-                transaction.commit();
+                int currentTextColor = textView.getCurrentTextColor();
+                navigator.navigateToSecondFragment(pos, currentTextColor);
             });
         }
     }
