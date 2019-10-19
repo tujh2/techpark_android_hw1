@@ -48,7 +48,7 @@ public class MainFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        navigator = MainActivity.INSTANCE.getNavigator();
+        navigator = MainActivity.getNavigator();
         if(mAdapter == null)
             mAdapter = new MyDataAdapter();
         View view = inflater.inflate(R.layout.main_fragment, container, false);
@@ -116,7 +116,7 @@ public class MainFragment extends Fragment {
             int pos = getItemCount() + 1;
             mData.add(pos);
             savSize++;
-            notifyDataSetChanged();
+            notifyItemInserted(pos);
         }
     }
 

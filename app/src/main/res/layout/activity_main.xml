@@ -6,12 +6,7 @@
     tools:context=".MainActivity">
 
     <FrameLayout
-        android:id="@+id/mainFrag"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <FrameLayout
-        android:id="@+id/secFrag"
+        android:id="@+id/Frag"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

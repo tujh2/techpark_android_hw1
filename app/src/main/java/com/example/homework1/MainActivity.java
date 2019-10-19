@@ -9,18 +9,16 @@ import android.os.Bundle;
 
 
 public class MainActivity extends AppCompatActivity {
-    public static MainActivity INSTANCE;
-    private Navigator navigator;
+    private static Navigator navigator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        INSTANCE = this;
         navigator = new Navigator();
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.mainFrag, MainFragment.newInstance());
+            transaction.replace(R.id.Frag, MainFragment.newInstance());
             transaction.commit();
         }
     }
@@ -29,22 +27,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         navigator = null;
-        INSTANCE = null;
     }
 
-    public Navigator getNavigator() {
+    public static Navigator getNavigator() {
         return navigator;
     }
 
     class Navigator implements FragmentNavigator {
         private final FragmentManager fragmentManager = getSupportFragmentManager();
+        private final Fragment fragment = fragmentManager.findFragmentById(R.id.Frag);
         @Override
         public void navigateToSecondFragment(int num, int col) {
-            Fragment mainFrag = fragmentManager.findFragmentById(R.id.mainFrag);
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            if(mainFrag != null)
-                transaction.remove(mainFrag);
-            transaction.replace(R.id.secFrag, SecondFragment.newInstance(num, col));
+            if(fragment != null)
+                transaction.remove(fragment);
+            transaction.replace(R.id.Frag, SecondFragment.newInstance(num, col));
             transaction.addToBackStack(null);
             transaction.commit();
         }
